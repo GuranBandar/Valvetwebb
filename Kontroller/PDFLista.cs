@@ -5,29 +5,30 @@ using System.IO;
 using System.Drawing;
 using Valvetwebb.Aktivitet;
 using Valvetwebb.Objekt;
-using PdfSharp.Pdf;
-using PdfSharp.Drawing;
-using MigraDocCore.DocumentObjectModel;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
+using iText.Kernel.Geom;
+using iText.Layout.Properties;
+using iText.Kernel.Font;
+using iText.IO.Font.Constants;
+using iText.Kernel.Colors;
+using iText.Layout.Borders;
+using System.Web;
 
 namespace Valvetwebb.Kontroller
 {
-    public static class PDFLista
+    public class PDFLista
     {
-        private static string PDFFileName { get; set; }
+        private string PDFFileName { get; set; }
 
-        private static float f;
+        public object PdfPTabletableLayout { get; set; }
 
-        private static string stringstrAttachment;
-
-        private static Stream workStream;
-
-        public static object PdfPTabletableLayout { get; set; }
-
-        public static object tableLayout { get; set; }
+        public object tableLayout { get; set; }
 
         public static Anvandare WebUser { get; set; }
 
-        private static List<ValvPost> GetData()
+        private List<ValvPost> GetData()
         {
             List<ValvPost> valvpostList = null;
             ValvPostAktivitet ValvpostAktivitet = new ValvPostAktivitet();
@@ -60,15 +61,20 @@ namespace Valvetwebb.Kontroller
             return valvpostList;
         }
 
+        public void ExportToPdf()
+        {
+            string dest = HttpContext.Current.Server.MapPath("~/Files/Valvlista.pdf");
+            GeneratePdf(dest);
+        }
 
-        //public static MemoryStream CreatePdf()
-        //{
-        //    List<ValvPost> valvpostList = GetData();
+            //public static MemoryStream CreatePdf()
+            //{
+            //    List<ValvPost> valvpostList = GetData();
 
-        //    FontStyle fontStyle = FontStyle.Italic;
-        //    MemoryStream memoryStream = new MemoryStream();
-        //    PdfWriter writer = new PdfWriter(memoryStream);
-        //    PdfDocument pdf = new PdfDocument(writer);
+            //    FontStyle fontStyle = FontStyle.Italic;
+            //    MemoryStream memoryStream = new MemoryStream();
+            //    PdfWriter writer = new PdfWriter(memoryStream);
+            //    PdfDocument pdf = new PdfDocument(writer);
             //PdfFont fontH = PdfFontFactory.CreateFont(FontConstants.TIMES_ROMAN);
             //PdfFont font = PdfFontFactory.CreateRegisteredFont("Verdana", PdfEncodings.CP1252);
             //float fontSize = 11f;
@@ -80,8 +86,8 @@ namespace Valvetwebb.Kontroller
 
             // Add header to the document
             //Paragraph header = new Paragraph("Valvetlista")
-                                    //.SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)
-                                    //.SetFontSize(fontSizeH);
+            //.SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)
+            //.SetFontSize(fontSizeH);
             // New line
             //Paragraph newline = new Paragraph(new Text("\n"));
 
@@ -137,74 +143,112 @@ namespace Valvetwebb.Kontroller
             //return memoryStream;
             // Return the PDF file
             //return File(memoryStream.ToArray(), "application/pdf", $"Report.pdf");
-        //}
+            //}
 
-        private static DataTable GenereraDataTable(List<ValvPost> dt)
+            private static DataTable GenereraDataTable(List<ValvPost> dt)
         {
             var table = new DataTable();
             var columns = table.Columns;
             columns.Add("Postnamn", typeof(string));
             columns.Add("Usernamn", typeof(string));
             columns.Add("Losenord", typeof(string));
-            columns.Add("Anteckningar", typeof(string));
+            //columns.Add("Anteckningar", typeof(string));
             return table;
         }
 
-        public static void ExportToPdf()
+        private void GeneratePdf(string dest)
         {
             List<ValvPost> valvpostList = GetData();
             DataTable dt = GenereraDataTable(valvpostList);
             FontStyle fontStyle = FontStyle.Italic;
-            float fontSize = 11f;
+            float fontSize = 10f;
             float fontSizeH = 12f;
-            string filename = @"C:\Mina program\Valvetlista.pdf";
+            PDFFileName = dest;
+            FileInfo file = new FileInfo(dest);
+            file.Directory.Create();
 
-            PdfDocument document = new PdfDocument(filename);
-            document.AddPage();
-            document.Info.Title = "DataTable to PDF";
-            PdfPage page = document.AddPage();
-            XGraphics gfx = XGraphics.FromPdfPage(page);
-            XFont font = new XFont("Verdana", 11);
-            XFont fontH = new XFont("Verdana", 12);
-            XBrush brush = XBrushes.Black;
+            //PdfDocument pdfDocument = new PdfDocument(new PdfWriter(filename));
 
-            Section section = new Section();
-            HeaderFooter header = section.Headers.Primary;
-            header = section.Headers.Primary;
-            header.AddParagraph("\tOdd Page Header");
+            PdfWriter writer = new PdfWriter(dest); 
+            PdfDocument pdfDocument = new PdfDocument(writer); 
+            Document document = new Document(pdfDocument);
 
-            header = section.Headers.EvenPage;
-            header.AddParagraph("Even Page Header");
+            document = new Document(pdfDocument, new PageSize(500, 825));
+            document.SetMargins(0, 0, 0, 0);
+            float[] columnWidthsman = { 9, 9, 9};
+            Table tableman = new Table(UnitValue.CreatePercentArray(columnWidthsman));
+            PdfFont fman = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
+            PdfFont detail = PdfFontFactory.CreateFont(StandardFonts.COURIER);
 
-            int yPoint = 0;
-            // Add header to the document
-            //Paragraph header = new Paragraph();
-            //.SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)
-            //.SetFontSize(fontSizeH);
-            // New line
-            //Paragraph newline = new Paragraph(new Text("\n"));
+            Cell cellman = new Cell(1, 3)
+                        .Add(new Paragraph("Header"))
+                        .SetFont(fman)
+                        .SetFontSize(12)
+                        .SetFontColor(DeviceGray.WHITE)
+                        .SetBackgroundColor(DeviceGray.BLACK)
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+            // Add Header cell.
+            tableman.AddHeaderCell(cellman);
 
-            foreach (DataColumn column in dt.Columns)
+            Cell cellman1 = new Cell(1, 1)
+                        .Add(new Paragraph("Postnamn"))
+                        .SetFont(fman)
+                        .SetFontSize(12)
+                        .SetFontColor(DeviceGray.BLACK)
+                        .SetBackgroundColor(new DeviceGray(0.75f))
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+            // Add cell 1.
+            tableman.AddHeaderCell(cellman1);
+
+            Cell cellman2 = new Cell(1, 1)
+                        .Add(new Paragraph("Usernamn"))
+                        .SetFont(fman)
+                        .SetFontSize(12)
+                        .SetFontColor(DeviceGray.BLACK)
+                        .SetBackgroundColor(new DeviceGray(0.75f))
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+            // Add cell 2.
+            tableman.AddHeaderCell(cellman2);
+
+            Cell cellman3 = new Cell(1, 1)
+                        .Add(new Paragraph("Losenord"))
+                        .SetFont(fman)
+                        .SetFontSize(12)
+                        .SetFontColor(DeviceGray.BLACK)
+                        .SetBackgroundColor(new DeviceGray(0.75f))
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+            // Add cell 3.
+            tableman.AddHeaderCell(cellman3);
+
+            //Cell cellman4 = new Cell(1, 1)
+            //            .Add(new Paragraph("Anteckningar"))
+            //            .SetFont(fman)
+            //            .SetFontSize(13)
+            //            .SetFontColor(DeviceGray.BLACK)
+            //            .SetBackgroundColor(new DeviceGray(0.75f))
+            //            .SetTextAlignment(TextAlignment.CENTER)
+            //            .SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
+            //// Add cell 4.
+            //tableman.AddHeaderCell(cellman4);
+
+            // Populate table with report data
+            foreach (var item in valvpostList)
             {
-                gfx.DrawString(column.ColumnName, font, XBrushes.Black,
-                    new XRect(40, yPoint, page.Width.Point, page.Height.Point),
-                    XStringFormats.TopLeft);
-                yPoint += 40;
+                tableman.AddCell(new Cell().Add(new Paragraph(item.Postnamn)).SetFont(detail).SetFontSize(fontSize));
+                tableman.AddCell(new Cell().Add(new Paragraph(item.Usernamn.ToString())).SetFont(detail).SetFontSize(fontSize));
+                tableman.AddCell(new Cell().Add(new Paragraph(item.Losenord.ToString())).SetFont(detail).SetFontSize(fontSize));
+                //tableman.AddCell(new Cell().Add(new Paragraph(item.Anteckningar.ToString())));
             }
 
-            foreach (DataRow row in dt.Rows)
-            {
-                foreach (var cell in row.ItemArray)
-                {
-                    gfx.DrawString(cell.ToString(), font, XBrushes.Black,
-                        new XRect(40, yPoint, page.Width.Point, page.Height.Point),
-                        XStringFormats.TopLeft);
-                    yPoint += 40;
-                }
-            }
+            // Add table to the document
+            document.Add(tableman);
 
-            //string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), filename);
-            document.Save(filename);
+            // Close the document
+            document.Close();
         }
     }
 }

@@ -43,7 +43,7 @@ namespace Valvetwebb
                 //Session["MessageText"] = string.Empty;
                 this.knappSearch_Click(sender, e);
                 txtSearchPost.Focus();
-                knappSkapaPdf.Visible = false;
+                knappSkapaPdf.Visible = true;
             }
             else
             {
@@ -140,6 +140,8 @@ namespace Valvetwebb
         /// <param name="e"></param>
         protected void knappSkapaPdf_Click(object sender, EventArgs e)
         {
+
+            //PDFLista pDFLista = new PDFLista();
             PDFLista.WebUser = (Anvandare)Session["WebUser"];
             var isMobile = DeviceControl.IsMobile(Context.Request.Headers["user-agent"].ToString()); 
 
@@ -148,7 +150,9 @@ namespace Valvetwebb
                 return;
             }
 
-            PDFLista.ExportToPdf();
+            PDFLista pdf = new PDFLista();
+            pdf.ExportToPdf();
+
             //MemoryStream stream = PDFLista.CreatePdf();
             // Set response headers
             //Response.ContentType = "application/pdf";
