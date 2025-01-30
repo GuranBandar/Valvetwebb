@@ -30,7 +30,15 @@ namespace Valvetwebb.Kontroller
 
         protected PageSize pageSize { get; set; }
 
-        PDFFooter pDFFooter = null;
+        /// <summary>
+        /// Exportera en pdf 
+        /// </summary>
+        public void ExportToPdf()
+        {
+            string pdfFilename = "Valvlista.pdf";
+            string fileName = GetPdfFilename(pdfFilename);
+            GeneratePdf(fileName);
+        }
 
         /// <summary>
         /// Hämta data från databasen
@@ -67,17 +75,6 @@ namespace Valvetwebb.Kontroller
 
             DataView dv = new DataView(dt);
             return valvpostList;
-        }
-
-        /// <summary>
-        /// Exportera en pdf 
-        /// </summary>
-        public void ExportToPdf()
-        {
-            string pdfFilename = "Valvlista.pdf";
-            string fileName = GetPdfFilename(pdfFilename);
-            //GeneratePdf(dest);
-            GeneratePdf(fileName);
         }
 
         /// <summary>
@@ -123,8 +120,6 @@ namespace Valvetwebb.Kontroller
             Table tableman = new Table(UnitValue.CreatePercentArray(columnWidthsman));
             PdfFont fman = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
             PdfFont detail = PdfFontFactory.CreateFont(StandardFonts.COURIER);
-
-            pDFFooter = new PDFFooter();
 
             Cell cellman = new Cell(1, 3)
                         .Add(new Paragraph("Valvlista"))

@@ -421,7 +421,6 @@
     <Compile Include="Kontroller\Enumkoder.cs" />
     <Compile Include="Kontroller\Extensions.cs" />
     <Compile Include="Kontroller\GUI_kontroller.cs" />
-    <Compile Include="Kontroller\PDFFooter.cs" />
     <Compile Include="Kontroller\PDFLista.cs" />
     <Compile Include="Kontroller\ProcessFileNameFinderClass.cs" />
     <Compile Include="Kontroller\WebBrowser.cs" />
