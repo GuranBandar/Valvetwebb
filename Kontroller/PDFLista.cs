@@ -20,7 +20,7 @@ namespace Valvetwebb.Kontroller
 {
     public class PDFLista
     {
-        private string PDFFileName { get; set; }
+        private string PdfFileName { get; set; }
 
         public object PdfPTabletableLayout { get; set; }
 
@@ -28,6 +28,14 @@ namespace Valvetwebb.Kontroller
 
         public static Anvandare WebUser { get; set; }
 
+        protected PageSize pageSize { get; set; }
+
+        PDFFooter pDFFooter = null;
+
+        /// <summary>
+        /// Hämta data från databasen
+        /// </summary>
+        /// <returns>Lsta med valvposter</returns>
         private List<ValvPost> GetData()
         {
             List<ValvPost> valvpostList = null;
@@ -61,91 +69,23 @@ namespace Valvetwebb.Kontroller
             return valvpostList;
         }
 
+        /// <summary>
+        /// Exportera en pdf 
+        /// </summary>
         public void ExportToPdf()
         {
-            string dest = HttpContext.Current.Server.MapPath("~/Files/Valvlista.pdf");
-            GeneratePdf(dest);
+            string pdfFilename = "Valvlista.pdf";
+            string fileName = GetPdfFilename(pdfFilename);
+            //GeneratePdf(dest);
+            GeneratePdf(fileName);
         }
 
-            //public static MemoryStream CreatePdf()
-            //{
-            //    List<ValvPost> valvpostList = GetData();
-
-            //    FontStyle fontStyle = FontStyle.Italic;
-            //    MemoryStream memoryStream = new MemoryStream();
-            //    PdfWriter writer = new PdfWriter(memoryStream);
-            //    PdfDocument pdf = new PdfDocument(writer);
-            //PdfFont fontH = PdfFontFactory.CreateFont(FontConstants.TIMES_ROMAN);
-            //PdfFont font = PdfFontFactory.CreateRegisteredFont("Verdana", PdfEncodings.CP1252);
-            //float fontSize = 11f;
-            //float fontSizeH = 12f;
-            //Document document = new Document(pdf).SetFont(font).SetFontSize(fontSize);
-
-            //PdfWriter writer = PdfWriter.GetInstance(document, new FileStream(@"C:\\Mina program\\Valvet\\" + "ValvetLista.pdf", FileMode.Create));
-            //DataTable dataTable = GenereraDataTable(valvpostList);
-
-            // Add header to the document
-            //Paragraph header = new Paragraph("Valvetlista")
-            //.SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)
-            //.SetFontSize(fontSizeH);
-            // New line
-            //Paragraph newline = new Paragraph(new Text("\n"));
-
-            //document.Add(newline);
-            //document.Add(header);
-
-            //iText.Layout.Font.FontSet fontH = new iText.Layout.Font.FontSet();
-
-            //var header = new PDFFooter();
-            //document.Open();
-            //writer.PageEvent = header;
-            //header.HeaderText = "Valvlista";
-            //iTextSharp.text.Font fontH = iTextSharp.text.FontFactory.GetFont(FontFactory.HELVETICA, 7, 2);
-            //iTextSharp.text.Font fontP = iTextSharp.text.FontFactory.GetFont(FontFactory.HELVETICA, 6);
-            //iTextSharp.text.Font font5 = iTextSharp.text.FontFactory.GetFont(FontFactory.HELVETICA, 5);
-
-            //fontH.Color = BaseColor.GRAY;
-
-            //Table table = new Table(dataTable.Columns.Count);
-            //table.HeaderRows = 1; /*---->> this property repeats the headers of an iTextSharp PdfPTable on each page */
-            //PdfPRow row = null;
-            //float[] widths = new float[dataTable.Columns.Count];
-            //for (int i = 0; i < dataTable.Columns.Count; i++)
-            //    widths[i] = 4f;
-
-            //table.SetWidths(widths);
-            //table.WidthPercentage = 100;
-            //int iCol = 0;
-            //string colname = "";
-            //PdfPCell cell = new PdfPCell(new Phrase("Valvposter"));
-
-            //cell.Colspan = dataTable.Columns.Count;
-
-            //foreach (DataColumn c in dataTable.Columns)
-            //{
-            //    table.AddHeaderCell(new Cell().Add(new Paragraph(c.ColumnName)).SetFontSize(fontSize));
-            //}
-
-            //if (valvpostList.Count > 0)
-            //{
-            //    foreach (ValvPost valvpost in valvpostList)
-            //    {
-            //        table.AddCell(new Cell().Add(new Paragraph(valvpost.Postnamn.ToString())).SetFontSize(fontSize));
-            //        table.AddCell(new Cell().Add(new Paragraph(valvpost.Usernamn.ToString())).SetFontSize(fontSize));
-            //        table.AddCell(new Cell().Add(new Paragraph(valvpost.Losenord.ToString())).SetFontSize(fontSize));
-            //        table.AddCell(new Cell().Add(new Paragraph(valvpost.Anteckningar.ToString())).SetFontSize(fontSize));
-            //    }
-            //}
-
-            //document.Add(table);
-            //document.Close();
-
-            //return memoryStream;
-            // Return the PDF file
-            //return File(memoryStream.ToArray(), "application/pdf", $"Report.pdf");
-            //}
-
-            private static DataTable GenereraDataTable(List<ValvPost> dt)
+        /// <summary>
+        /// Generera en DataTable från objektlista
+        /// </summary>
+        /// <param name="dt">Objektlista</param>
+        /// <returns></returns>
+        private static DataTable GenereraDataTable(List<ValvPost> dt)
         {
             var table = new DataTable();
             var columns = table.Columns;
@@ -156,32 +96,38 @@ namespace Valvetwebb.Kontroller
             return table;
         }
 
+        /// <summary>
+        /// Genererar en PDF
+        /// </summary>
+        /// <param name="dest">Filenamn för pdf:en</param>
         private void GeneratePdf(string dest)
         {
             List<ValvPost> valvpostList = GetData();
             DataTable dt = GenereraDataTable(valvpostList);
             FontStyle fontStyle = FontStyle.Italic;
-            float fontSize = 10f;
+            float fontSize = 8f;
             float fontSizeH = 12f;
-            PDFFileName = dest;
+            PdfFileName = dest;
             FileInfo file = new FileInfo(dest);
             file.Directory.Create();
-
-            //PdfDocument pdfDocument = new PdfDocument(new PdfWriter(filename));
 
             PdfWriter writer = new PdfWriter(dest); 
             PdfDocument pdfDocument = new PdfDocument(writer); 
             Document document = new Document(pdfDocument);
+            pageSize = new PageSize(500, 800);
 
-            document = new Document(pdfDocument, new PageSize(500, 825));
-            document.SetMargins(0, 0, 0, 0);
+            document = new Document(pdfDocument, pageSize, false);
+            document.SetMargins(12, 12, 36, 12);
             float[] columnWidthsman = { 9, 9, 9};
+
             Table tableman = new Table(UnitValue.CreatePercentArray(columnWidthsman));
             PdfFont fman = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
             PdfFont detail = PdfFontFactory.CreateFont(StandardFonts.COURIER);
 
+            pDFFooter = new PDFFooter();
+
             Cell cellman = new Cell(1, 3)
-                        .Add(new Paragraph("Header"))
+                        .Add(new Paragraph("Valvlista"))
                         .SetFont(fman)
                         .SetFontSize(12)
                         .SetFontColor(DeviceGray.WHITE)
@@ -194,7 +140,7 @@ namespace Valvetwebb.Kontroller
             Cell cellman1 = new Cell(1, 1)
                         .Add(new Paragraph("Postnamn"))
                         .SetFont(fman)
-                        .SetFontSize(12)
+                        .SetFontSize(fontSize)
                         .SetFontColor(DeviceGray.BLACK)
                         .SetBackgroundColor(new DeviceGray(0.75f))
                         .SetTextAlignment(TextAlignment.CENTER)
@@ -205,7 +151,7 @@ namespace Valvetwebb.Kontroller
             Cell cellman2 = new Cell(1, 1)
                         .Add(new Paragraph("Usernamn"))
                         .SetFont(fman)
-                        .SetFontSize(12)
+                        .SetFontSize(fontSize)
                         .SetFontColor(DeviceGray.BLACK)
                         .SetBackgroundColor(new DeviceGray(0.75f))
                         .SetTextAlignment(TextAlignment.CENTER)
@@ -216,24 +162,13 @@ namespace Valvetwebb.Kontroller
             Cell cellman3 = new Cell(1, 1)
                         .Add(new Paragraph("Losenord"))
                         .SetFont(fman)
-                        .SetFontSize(12)
+                        .SetFontSize(fontSize)
                         .SetFontColor(DeviceGray.BLACK)
                         .SetBackgroundColor(new DeviceGray(0.75f))
                         .SetTextAlignment(TextAlignment.CENTER)
                         .SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
             // Add cell 3.
             tableman.AddHeaderCell(cellman3);
-
-            //Cell cellman4 = new Cell(1, 1)
-            //            .Add(new Paragraph("Anteckningar"))
-            //            .SetFont(fman)
-            //            .SetFontSize(13)
-            //            .SetFontColor(DeviceGray.BLACK)
-            //            .SetBackgroundColor(new DeviceGray(0.75f))
-            //            .SetTextAlignment(TextAlignment.CENTER)
-            //            .SetBorder(new SolidBorder(ColorConstants.GRAY, 2));
-            //// Add cell 4.
-            //tableman.AddHeaderCell(cellman4);
 
             // Populate table with report data
             foreach (var item in valvpostList)
@@ -247,8 +182,75 @@ namespace Valvetwebb.Kontroller
             // Add table to the document
             document.Add(tableman);
 
+            AddPageNumbers(document);
+
             // Close the document
             document.Close();
+        }
+
+        /// <summary>
+        /// Hämta alla sidor och visa i footer
+        /// </summary>
+        /// <param name="doc">Documentet som ska genereras</param>
+        private void AddPageNumbers(Document doc)
+        {
+            var totalPages = doc.GetPdfDocument().GetNumberOfPages();
+            float coordX = ((pageSize.GetLeft() + doc.GetLeftMargin())
+                  + (pageSize.GetRight() - doc.GetRightMargin())) / 2;
+            float footerY = doc.GetBottomMargin();
+
+            for (int i = 1; i <= totalPages; i++)
+            {
+                //Paragraph date = createDate();
+                //date.SetFixedPosition(i, 15, 25, 600);
+                //doc.Add(date);
+                Paragraph pagenumber = createPageNumber(i, totalPages);
+                pagenumber.SetFixedPosition(i, 225, 10, 600);
+                doc.Add(pagenumber);
+            }
+        }
+
+        /// <summary>
+        /// Generera datum
+        /// </summary>
+        /// <returns></returns>
+        private Paragraph createDate()
+        {
+            PdfFont date = PdfFontFactory.CreateFont(StandardFonts.COURIER);
+            Paragraph p = new Paragraph();
+            p.SetFontSize(8);
+            p.SetFont(date);
+            p.SetFontColor(DeviceGray.BLACK);
+            p.Add($"Date: {DateTime.Now.ToString("yyyy-MM-dd")} | Filename: " + PdfFileName);
+            return p;
+        }
+
+        /// <summary>
+        /// Genererar objekt med sidnummer
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <param name="totalPages"></param>
+        /// <returns>Objekt med sidnummer</returns>
+        private Paragraph createPageNumber(int pageNumber, int totalPages)
+        {
+            PdfFont footer = PdfFontFactory.CreateFont(StandardFonts.COURIER);
+            Paragraph p = new Paragraph();
+            p.SetFontSize(8);
+            p.SetFont(footer);
+            p.SetFontColor(DeviceGray.BLACK);
+            p.Add("Sida ").Add(pageNumber.ToString()).Add(" av ").Add(totalPages.ToString());
+            return p;
+        }
+
+        /// <summary>
+        /// Generera filnamn för listan
+        /// </summary>
+        /// <param name="fileName">Det genererade filnamnet</param>
+        /// <returns></returns>
+        private string GetPdfFilename(string fileName)
+        {
+            string filePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", fileName);
+            return filePath;
         }
     }
 }
