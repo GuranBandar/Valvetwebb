@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using System.Web.UI.WebControls;
 using Valvetwebb.Aktivitet;
 using Valvetwebb.Kontroller;
@@ -13,11 +12,14 @@ namespace Valvetwebb
     {
 
         public GUI_kontroller gUI_Kontroller;
+
         public int PostID { get; set; }
+
         /// <summary>
         /// FelID från metodanrop till GUI:et
         /// </summary>
         public static string FelID = "";
+
         /// <summary>
         /// FelText från metodanrop till GUI:et
         /// </summary>
@@ -40,7 +42,6 @@ namespace Valvetwebb
                 GetCurrentCulture();
                 Session["Referencepage"] = "Valvlista.aspx";
                 Session["MessageTitle"] = "Valvlista";
-                //Session["MessageText"] = string.Empty;
                 this.knappSearch_Click(sender, e);
                 txtSearchPost.Focus();
                 knappSkapaPdf.Visible = true;
@@ -63,7 +64,6 @@ namespace Valvetwebb
 
             try
             {
-                //postID = (int)itemPost.Text;
                 Sidan = "ValvPostInfo.aspx";
                 VisaSida(Sidan, "PostID", item);
             }
@@ -141,7 +141,7 @@ namespace Valvetwebb
         protected void knappSkapaPdf_Click(object sender, EventArgs e)
         {
 
-            //PDFLista pDFLista = new PDFLista();
+            string filename = null;
             PDFLista.WebUser = (Anvandare)Session["WebUser"];
             var isMobile = DeviceControl.IsMobile(Context.Request.Headers["user-agent"].ToString()); 
 
@@ -151,15 +151,11 @@ namespace Valvetwebb
             }
 
             PDFLista pdf = new PDFLista();
-            pdf.ExportToPdf();
+            filename = pdf.ExportToPdf();
 
-            //MemoryStream stream = PDFLista.CreatePdf();
-            // Set response headers
-            //Response.ContentType = "application/pdf";
-            //Response.AddHeader("Content-Disposition", "attachment; filename=" + "ValvetLista.pdf" + ";");
-            //Response.BinaryWrite(stream.ToArray());
-            //Response.Flush();
-            //Response.End();
+            Session["MessageTitle"] = "Valvlista";
+            Session["MessageText"] = "Pdf är skapad och finns här: " + filename;
+            Response.Redirect("MessageBox.aspx");
 
         }
 
@@ -210,7 +206,6 @@ namespace Valvetwebb
                     {
                         Session["MessageText"] = "Finns inga valvposter med postnamn = eller < '" + Session["SearchPost"] + "'";
                     }
-                    //Session["SearchPost"] = string.Empty;
                     MessageBox();
                 }
             }

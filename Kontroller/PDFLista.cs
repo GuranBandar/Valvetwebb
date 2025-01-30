@@ -14,10 +14,12 @@ using iText.Kernel.Font;
 using iText.IO.Font.Constants;
 using iText.Kernel.Colors;
 using iText.Layout.Borders;
-using System.Web;
 
 namespace Valvetwebb.Kontroller
 {
+    /// <summary>
+    /// Klass för att skapa en PDF lista
+    /// </summary>
     public class PDFLista
     {
         private string PdfFileName { get; set; }
@@ -33,11 +35,12 @@ namespace Valvetwebb.Kontroller
         /// <summary>
         /// Exportera en pdf 
         /// </summary>
-        public void ExportToPdf()
+        public string ExportToPdf()
         {
             string pdfFilename = "Valvlista.pdf";
             string fileName = GetPdfFilename(pdfFilename);
             GeneratePdf(fileName);
+            return fileName;
         }
 
         /// <summary>
@@ -89,7 +92,6 @@ namespace Valvetwebb.Kontroller
             columns.Add("Postnamn", typeof(string));
             columns.Add("Usernamn", typeof(string));
             columns.Add("Losenord", typeof(string));
-            //columns.Add("Anteckningar", typeof(string));
             return table;
         }
 
@@ -171,7 +173,6 @@ namespace Valvetwebb.Kontroller
                 tableman.AddCell(new Cell().Add(new Paragraph(item.Postnamn)).SetFont(detail).SetFontSize(fontSize));
                 tableman.AddCell(new Cell().Add(new Paragraph(item.Usernamn.ToString())).SetFont(detail).SetFontSize(fontSize));
                 tableman.AddCell(new Cell().Add(new Paragraph(item.Losenord.ToString())).SetFont(detail).SetFontSize(fontSize));
-                //tableman.AddCell(new Cell().Add(new Paragraph(item.Anteckningar.ToString())));
             }
 
             // Add table to the document
@@ -196,9 +197,6 @@ namespace Valvetwebb.Kontroller
 
             for (int i = 1; i <= totalPages; i++)
             {
-                //Paragraph date = createDate();
-                //date.SetFixedPosition(i, 15, 25, 600);
-                //doc.Add(date);
                 Paragraph pagenumber = createPageNumber(i, totalPages);
                 pagenumber.SetFixedPosition(i, 225, 10, 600);
                 doc.Add(pagenumber);
