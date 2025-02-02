@@ -140,8 +140,6 @@ namespace Valvetwebb
         /// <param name="e"></param>
         protected void knappSkapaPdf_Click(object sender, EventArgs e)
         {
-
-            //PDFLista pDFLista = new PDFLista();
             PDFLista.WebUser = (Anvandare)Session["WebUser"];
             var isMobile = DeviceControl.IsMobile(Context.Request.Headers["user-agent"].ToString()); 
 
@@ -151,16 +149,10 @@ namespace Valvetwebb
             }
 
             PDFLista pdf = new PDFLista();
-            pdf.ExportToPdf();
+            string fileName = pdf.ExportToPdf();
 
-            //MemoryStream stream = PDFLista.CreatePdf();
-            // Set response headers
-            //Response.ContentType = "application/pdf";
-            //Response.AddHeader("Content-Disposition", "attachment; filename=" + "ValvetLista.pdf" + ";");
-            //Response.BinaryWrite(stream.ToArray());
-            //Response.Flush();
-            //Response.End();
-
+            Session["MessageText"] = "PDF skapad = " + fileName.ToString();
+            MessageBox();
         }
 
         /// <summary>

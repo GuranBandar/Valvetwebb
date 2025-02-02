@@ -5,6 +5,7 @@ using System.IO;
 using System.Drawing;
 using Valvetwebb.Aktivitet;
 using Valvetwebb.Objekt;
+using iText.Bouncycastle;
 using iText.Kernel.Pdf;
 using iText.Layout;
 using iText.Layout.Element;
@@ -30,15 +31,7 @@ namespace Valvetwebb.Kontroller
 
         protected PageSize pageSize { get; set; }
 
-        /// <summary>
-        /// Exportera en pdf 
-        /// </summary>
-        public void ExportToPdf()
-        {
-            string pdfFilename = "Valvlista.pdf";
-            string fileName = GetPdfFilename(pdfFilename);
-            GeneratePdf(fileName);
-        }
+        PDFFooter pDFFooter = null;
 
         /// <summary>
         /// Hämta data från databasen
@@ -78,6 +71,17 @@ namespace Valvetwebb.Kontroller
         }
 
         /// <summary>
+        /// Exportera en pdf 
+        /// </summary>
+        public string ExportToPdf()
+        {
+            string pdfFilename = "Valvlista.pdf";
+            string fileName = GetPdfFilename(pdfFilename);
+            GeneratePdf(fileName);
+            return fileName;
+        }
+
+        /// <summary>
         /// Generera en DataTable från objektlista
         /// </summary>
         /// <param name="dt">Objektlista</param>
@@ -89,7 +93,6 @@ namespace Valvetwebb.Kontroller
             columns.Add("Postnamn", typeof(string));
             columns.Add("Usernamn", typeof(string));
             columns.Add("Losenord", typeof(string));
-            //columns.Add("Anteckningar", typeof(string));
             return table;
         }
 
@@ -121,8 +124,10 @@ namespace Valvetwebb.Kontroller
             PdfFont fman = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
             PdfFont detail = PdfFontFactory.CreateFont(StandardFonts.COURIER);
 
+            pDFFooter = new PDFFooter();
+
             Cell cellman = new Cell(1, 3)
-                        .Add(new Paragraph("Valvlista"))
+                        .Add(new Paragraph($"Datum: { DateTime.Now.ToString("yyyy-MM-dd") } | Valvlista"))
                         .SetFont(fman)
                         .SetFontSize(12)
                         .SetFontColor(DeviceGray.WHITE)
@@ -171,7 +176,6 @@ namespace Valvetwebb.Kontroller
                 tableman.AddCell(new Cell().Add(new Paragraph(item.Postnamn)).SetFont(detail).SetFontSize(fontSize));
                 tableman.AddCell(new Cell().Add(new Paragraph(item.Usernamn.ToString())).SetFont(detail).SetFontSize(fontSize));
                 tableman.AddCell(new Cell().Add(new Paragraph(item.Losenord.ToString())).SetFont(detail).SetFontSize(fontSize));
-                //tableman.AddCell(new Cell().Add(new Paragraph(item.Anteckningar.ToString())));
             }
 
             // Add table to the document
@@ -203,21 +207,6 @@ namespace Valvetwebb.Kontroller
                 pagenumber.SetFixedPosition(i, 225, 10, 600);
                 doc.Add(pagenumber);
             }
-        }
-
-        /// <summary>
-        /// Generera datum
-        /// </summary>
-        /// <returns></returns>
-        private Paragraph createDate()
-        {
-            PdfFont date = PdfFontFactory.CreateFont(StandardFonts.COURIER);
-            Paragraph p = new Paragraph();
-            p.SetFontSize(8);
-            p.SetFont(date);
-            p.SetFontColor(DeviceGray.BLACK);
-            p.Add($"Date: {DateTime.Now.ToString("yyyy-MM-dd")} | Filename: " + PdfFileName);
-            return p;
         }
 
         /// <summary>
