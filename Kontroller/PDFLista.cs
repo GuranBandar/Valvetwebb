@@ -33,6 +33,22 @@ namespace Valvetwebb.Kontroller
 
         PDFFooter pDFFooter = null;
 
+        public PDFLista()
+        {
+
+        }
+
+        /// <summary>
+        /// Exportera en pdf 
+        /// </summary>
+        public string ExportToPdf()
+        {
+            string pdfFilename = "Valvlista.pdf";
+            string fileName = GetPdfFilename(pdfFilename);
+            GeneratePdf(fileName);
+            return fileName;
+        }
+
         /// <summary>
         /// Hämta data från databasen
         /// </summary>
@@ -68,17 +84,6 @@ namespace Valvetwebb.Kontroller
 
             DataView dv = new DataView(dt);
             return valvpostList;
-        }
-
-        /// <summary>
-        /// Exportera en pdf 
-        /// </summary>
-        public string ExportToPdf()
-        {
-            string pdfFilename = "Valvlista.pdf";
-            string fileName = GetPdfFilename(pdfFilename);
-            GeneratePdf(fileName);
-            return fileName;
         }
 
         /// <summary>
