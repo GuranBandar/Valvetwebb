@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Web;
 using System.Web.UI.WebControls;
 using Valvetwebb.Aktivitet;
 using Valvetwebb.Kontroller;
@@ -153,6 +154,17 @@ namespace Valvetwebb
 
             Session["MessageText"] = "PDF skapad = " + fileName.ToString();
             MessageBox();
+
+            HttpResponse currentResponse = HttpContext.Current.Response;
+            currentResponse.Clear();
+            currentResponse.ClearHeaders();
+            currentResponse.ContentType = "application/pdf";
+            currentResponse.AppendHeader("Content-Disposition", "attachment; " + fileName);
+
+            //create the "my.pdf" here
+
+            currentResponse.Flush();
+            currentResponse.End();
         }
 
         /// <summary>

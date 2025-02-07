@@ -190,6 +190,7 @@ namespace Valvetwebb.Kontroller
 
             // Close the document
             document.Close();
+
         }
 
         /// <summary>
