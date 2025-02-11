@@ -159,7 +159,7 @@ namespace Valvetwebb
             currentResponse.Clear();
             currentResponse.ClearHeaders();
             currentResponse.ContentType = "application/pdf";
-            currentResponse.AppendHeader("Content-Disposition", "attachment; " + fileName);
+            currentResponse.AppendHeader("Content-Disposition", "attachment; fileName=myPdf");
 
             //create the "my.pdf" here
 
