@@ -213,13 +213,13 @@ namespace Valvetwebb
         protected global::System.Web.UI.WebControls.TextBox txtWebadress;
 
         /// <summary>
-        /// lkbLanka control.
+        /// LkbLanka control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton lkbLanka;
+        protected global::System.Web.UI.WebControls.LinkButton LkbLanka;
 
         /// <summary>
         /// Label4 control.

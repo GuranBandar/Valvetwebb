@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
 using Valvetwebb.Aktivitet;
-using Valvetwebb.Kontroller;
 using Valvetwebb.Objekt;
 
 namespace Valvetwebb
@@ -34,7 +34,7 @@ namespace Valvetwebb
 
             if (!IsPostBack)
             {
-                Session["Referencepage"] = "ValvPostInfo.aspx";
+                Session["Referencepage"] = Session["NavigateUrl"];
                 Session["MessageTitle"] = "Valvpost";
                 valvPost = new ValvPost();
 
@@ -51,11 +51,11 @@ namespace Valvetwebb
                     VisaValvPost();
                 }
                 //Kolla om det kommer efter att ett felmeddelande visats
-                //else if (Session["MessageText"].ToString() != null)
-                //{
-                //    Session["MessageText"] = string.Empty;
-                //    return;
-                //}
+                else if (Session["MessageText"].ToString() != null)
+                {
+                    Session["MessageText"] = string.Empty;
+                    return;
+                }
                 else
                 {
                     VisaTomValvPost();
@@ -105,16 +105,16 @@ namespace Valvetwebb
             Session["AnvandarID"] = valvPost.AnvandarID;
             string Password = txtLosenord.Text;
             txtLosenord.Attributes.Add("value", Password);
-            lkbLanka.Visible = false;
+            //lkbLanka.Visible = true;
 
-            //if (txtWebadress.Text != string.Empty)
-            //{
-            //    lkbLanka.Visible = true;
-            //}
-            //else
-            //{
-            //    lkbLanka.Visible = false;
-            //}
+            if (txtWebadress.Text != string.Empty)
+            {
+                LkbLanka.Visible = true;
+            }
+            else
+            {
+                LkbLanka.Visible = false;
+            }
         }
 
         /// <summary>
@@ -129,6 +129,7 @@ namespace Valvetwebb
             txtLosenord.Text = string.Empty;
             txtWebadress.Text = string.Empty;
             txtAnteckningar.Text = string.Empty;
+            LkbLanka.Visible = false;
         }
 
         /// <summary>
@@ -153,14 +154,17 @@ namespace Valvetwebb
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        protected void lkbLanka_Click(object sender, EventArgs e)
+        protected void LkbLanka_Click(object sender, EventArgs e)
         {
+            string url = txtWebadress.Text;
+
             try
             {
-                base.StartWebbrowser(txtWebadress.Text);
+                Process.Start(url);
             }
-            catch 
+            catch (Exception ex)
             {
+                Session["MessageText"] = ex.Message + " " + url;
                 MessageBox();
             }
         }

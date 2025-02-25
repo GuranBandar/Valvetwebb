@@ -41,6 +41,7 @@ namespace Valvetwebb
                 GetCurrentCulture();
                 Session["Referencepage"] = "Valvlista.aspx";
                 Session["MessageTitle"] = "Valvlista";
+                Session["hfiNyPost"] = "Nej";
                 //Session["MessageText"] = string.Empty;
                 this.knappSearch_Click(sender, e);
                 txtSearchPost.Focus();
@@ -78,6 +79,7 @@ namespace Valvetwebb
         {
             string NavigateUrl;
             NavigateUrl = sidan + "?" + idFalt + "= " + id;
+            Session["NavigateUrl"] = NavigateUrl;
             Response.Redirect(NavigateUrl);
         }
 
@@ -85,6 +87,7 @@ namespace Valvetwebb
         {
             string NavigateUrl;
             NavigateUrl = sidan;
+            Session["NavigateUrl"] = NavigateUrl;
             Response.Redirect(NavigateUrl);
         }
 

@@ -100,7 +100,7 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <asp:LinkButton ID="lkbLanka" runat="server" text="Länka" OnClick="lkbLanka_Click" Enabled="true"></asp:LinkButton>
+                                    <asp:LinkButton ID="LkbLanka" runat="server" text="Länka" OnClick="LkbLanka_Click" Enabled="true"></asp:LinkButton>
                                     <asp:Label ID="Label4" Height="3px" Width="2%" runat="server"></asp:Label>
                                 </td>
                             </tr>
